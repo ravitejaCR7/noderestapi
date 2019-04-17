@@ -130,7 +130,11 @@ router.put('/privacySettingsChange/:email', userTable_controller.user_privacy_up
 
 
 //PostsMadeByUser
-router.post('/postedByThisUser',uploadImagesAndVideosToPosts.single('personPostBinary') , userTable_controller.user_posting_post);
+router.post('/postedByThisUser',uploadImagesAndVideosToPosts.single('postImageOrVideo') , userTable_controller.user_posting_post);
+
+router.get('/postedByThisUser/:email' , userTable_controller.user_posting_get);
+
+router.get('/getThisPost/:id' , userTable_controller.user_posting_get_byId);
 
 
 module.exports = router;

@@ -9,10 +9,12 @@ const UserPostsSchema = new Schema(
         email: { type: String },
         datePosted: { type: String },
         textEntered: { type: String },
-        postImageOrVideo: { type:String }
+        postImageOrVideo: { type:String },
+        isCommentable: {type: Boolean},
+        commentsList: [String]
     }
 );
 
-const UserTable = mongoose.model('UserTable', UserTableSchema);
+const PostsTable = mongoose.model('PostsTable', UserPostsSchema);
 
-module.exports = UserTable;
+module.exports = PostsTable;

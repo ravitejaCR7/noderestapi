@@ -1,5 +1,6 @@
 let userTableModel = require('../Models/UserInfoJson');
 let accountPrivacyTable = require('../Models/AccountPrivacyJson');
+let userPostsTable = require('../Models/UserPostsJson');
 
 
 //Simple version, without validation or sanitation
@@ -147,6 +148,55 @@ exports.user_posting_post = function (req, res, next) {
 
     console.log(req.file);
 
-    res.send({"error":"No error"});
+    var postModel = new userPostsTable(
+        {
+            email: req.body.email,
+            datePosted: req.body.datePosted,
+            textEntered: req.body.textEntered,
+            postImageOrVideo: req.file.originalname,
+            isCommentable: req.body.isCommentable
+        }
+    );
 
+    postModel.save(function (err) {
+        if (err) {
+            res.status(500).send({"response":"error at server side in posting the post"});
+        }
+        res.status(200).send({"response":"Post Created successfully"});
+    });
+
+};
+
+exports.user_posting_get = function (req, res, next) {
+    userPostsTable.find({email : req.params.email}, function(err, userModel){
+        var flag = false;
+        if (err) {
+            console.log(err);
+            res.status(500).send({"error":"server side error in getting the posts data"});
+        }
+        if (!userModel) {
+            console.log('no user found');
+            flag = true;
+        }
+        // const lst = userModel.map(user => user._id);
+        console.log('posts made by this user : '+userModel);
+        res.send({userModel,"error":flag});
+    });
+};
+
+exports.user_posting_get_byId = function (req, res, next) {
+    userPostsTable.findById(req.params.id, function(err, userModel){
+        var flag = false;
+        if (err) {
+            console.log(err);
+            res.status(500).send({"error":"server side error in getting the posts data"});
+        }
+        if (!userModel) {
+            console.log('no post found');
+            flag = true;
+        }
+        // const lst = userModel.map(user => user._id);
+        console.log('specific post by this id: '+userModel);
+        res.send({userModel,"error":flag});
+    });
 };
