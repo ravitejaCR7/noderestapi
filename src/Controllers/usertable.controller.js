@@ -1,6 +1,7 @@
 let userTableModel = require('../Models/UserInfoJson');
 let accountPrivacyTable = require('../Models/AccountPrivacyJson');
 let userPostsTable = require('../Models/UserPostsJson');
+let notifiFrndReqTable = require('../Models/Notifications');
 
 
 //Simple version, without validation or sanitation
@@ -200,3 +201,68 @@ exports.user_posting_get_byId = function (req, res, next) {
         res.send({userModel,"error":flag});
     });
 };
+
+exports.notification = function (req, res, next) {
+    // console.log(req.file);
+    var notificationModel = new notifiFrndReqTable(
+        {
+
+            emailFrom: req.body.emailFrom,
+            emailTo: req.body.emailTo,
+            accepted: req.body.accepted
+        }
+    );
+
+    var name;
+    userTableModel.findOne ({ email: req.body.emailFrom }, function (err, userModel) {
+        var flag = false;
+        if (err) console.log (err);
+        if (!userModel) {
+            console.log('user not found');
+            flag = true;
+        }
+        name = userModel.name;
+    });
+
+    notificationModel.save(function (err) {
+        if (err) {
+            return next(err);
+        }
+        res.status(200).send({"reply":name + " Friend Request Accepted"});
+    });
+};
+
+exports.addFriend = function (req, res, next) {
+    // console.log(req.file);
+    var notificationModel = new notifiFrndReqTable(
+        {
+
+            emailFrom: req.body.emailFrom,
+            emailTo: req.body.emailTo,
+            accepted: req.body.accepted
+        }
+    );
+
+    var name;
+    userTableModel.findOne ({ email: req.body.emailFrom }, function (err, userModel) {
+        var flag = false;
+        if (err) console.log (err);
+        if (!userModel) {
+            console.log('user not found');
+            flag = true;
+        }
+        name = userModel.name;
+    });
+
+    notificationModel.save(function (err) {
+        if (err) {
+            return next(err);
+        }
+        res.status(200).send({"reply":name + " Friend Request Accepted"});
+    });
+};
+
+
+
+
+

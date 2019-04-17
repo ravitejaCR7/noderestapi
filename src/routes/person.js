@@ -93,6 +93,7 @@ router.put('/:id/update', userTable_controller.user_update);
 
 router.get('/specificUserInfo/:email', userTable_controller.specific_user_details);
 
+
 //login API
 
 //get email and password from front end
@@ -136,5 +137,7 @@ router.get('/postedByThisUser/:email' , userTable_controller.user_posting_get);
 
 router.get('/getThisPost/:id' , userTable_controller.user_posting_get_byId);
 
+//Add Friend
+router.get('/addFriend', userTable_controller.addFriend);
 
 module.exports = router;
