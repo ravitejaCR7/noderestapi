@@ -93,7 +93,6 @@ router.put('/:id/update', userTable_controller.user_update);
 
 router.get('/specificUserInfo/:email', userTable_controller.specific_user_details);
 
-
 //login API
 
 //get email and password from front end
@@ -139,5 +138,12 @@ router.get('/getThisPost/:id' , userTable_controller.user_posting_get_byId);
 
 //Add Friend
 router.get('/addFriend', userTable_controller.addFriend);
+//posts comments
+router.post('/commentsOnThisPost',uploadImagesAndVideosToPosts.single('commentImageOrVideo') , userTable_controller.user_comments_post);
+
+router.get('/commentsOnThisPostGet/:postId' , userTable_controller.user_comments_on_post_get);
+
+router.get('/getThisComment/:commentId' , userTable_controller.user_comment_get_byId);
+
 
 module.exports = router;
