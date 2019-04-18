@@ -136,8 +136,8 @@ router.get('/postedByThisUser/:email' , userTable_controller.user_posting_get);
 
 router.get('/getThisPost/:id' , userTable_controller.user_posting_get_byId);
 
-//Add Friend
-router.get('/addFriend', userTable_controller.addFriend);
+
+
 //posts comments
 router.post('/commentsOnThisPost',uploadImagesAndVideosToPosts.single('commentImageOrVideo') , userTable_controller.user_comments_post);
 
@@ -145,5 +145,22 @@ router.get('/commentsOnThisPostGet/:postId' , userTable_controller.user_comments
 
 router.get('/getThisComment/:commentId' , userTable_controller.user_comment_get_byId);
 
+
+//Add Friend
+router.get('/addFriendFirstTime/:email', userTable_controller.create_friend_list);
+
+router.get('/acceptingFriendRequest/:fromEmail/:toEmail', userTable_controller.acceptingFriendRequest);
+
+router.get('/removeFriend/:fromEmail/:toEmail', userTable_controller.removeFriend);
+
+
+//Notifications
+router.get('/createNotificationForFriends/:fromEmail/:toEmail', userTable_controller.createNotificationForFriends);
+
+router.put('/updateNotificationForFriends/:fromEmail/:toEmail', userTable_controller.updateNotificationForFriends);
+
+router.get('/getTheFriendRequestInfo/:fromEmail/:toEmail', userTable_controller.getTheFriendRequestInfo);
+
+router.get('/cancelNotificationOrRequest/:fromEmail/:toEmail', userTable_controller.cancelNotificationOrRequest);
 
 module.exports = router;
