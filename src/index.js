@@ -2,10 +2,13 @@
 const mongoose = require('mongoose');
 const express = require('express');
 var bodyParser = require('body-parser');
+var http = require('http');
 console.log("Roonaldoooooo!");
 
 
 let app = express();
+
+
 
 app.use('/uploads',express.static('uploads'));
 app.use('/PostsBinaryData',express.static('PostsBinaryData'));
@@ -51,6 +54,10 @@ app.use(express.static('public'));
 app.use((req, res, next) => {
     res.status(404).send("We think you are lost!");
 });
+
+var server = http.createServer(app);
+
+var io = require('socket.io').listen(server);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, ()=> console.info(`server started listening on ${PORT}`));
