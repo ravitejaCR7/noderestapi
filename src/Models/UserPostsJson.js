@@ -10,8 +10,7 @@ const UserPostsSchema = new Schema(
         datePosted: { type: String },
         textEntered: { type: String },
         postImageOrVideo: { type:String },
-        isCommentable: {type: Boolean},
-        commentsList: [String]
+        isCommentable: {type: Boolean}
     }
 );
 

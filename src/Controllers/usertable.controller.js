@@ -1,6 +1,8 @@
 let userTableModel = require('../Models/UserInfoJson');
 let accountPrivacyTable = require('../Models/AccountPrivacyJson');
 let userPostsTable = require('../Models/UserPostsJson');
+let notifiFrndReqTable = require('../Models/Notifications');
+let postsCommentsTable = require('../Models/PostsCommentsJson');
 
 
 //Simple version, without validation or sanitation
@@ -197,6 +199,137 @@ exports.user_posting_get_byId = function (req, res, next) {
         }
         // const lst = userModel.map(user => user._id);
         console.log('specific post by this id: '+userModel);
+        res.send({userModel,"error":flag});
+    });
+};
+
+exports.notification = function (req, res, next) {
+    // console.log(req.file);
+    var notificationModel = new notifiFrndReqTable(
+        {
+
+            emailFrom: req.body.emailFrom,
+            emailTo: req.body.emailTo,
+            accepted: req.body.accepted
+        }
+    );
+
+    var name;
+    userTableModel.findOne ({ email: req.body.emailFrom }, function (err, userModel) {
+        var flag = false;
+        if (err) console.log (err);
+        if (!userModel) {
+            console.log('user not found');
+            flag = true;
+        }
+        name = userModel.name;
+    });
+
+    notificationModel.save(function (err) {
+        if (err) {
+            return next(err);
+        }
+        res.status(200).send({"reply":name + " Friend Request Accepted"});
+    });
+};
+
+exports.addFriend = function (req, res, next) {
+    // console.log(req.file);
+    var notificationModel = new notifiFrndReqTable(
+        {
+
+            emailFrom: req.body.emailFrom,
+            emailTo: req.body.emailTo,
+            accepted: req.body.accepted
+        }
+    );
+
+    var name;
+    userTableModel.findOne ({ email: req.body.emailFrom }, function (err, userModel) {
+        var flag = false;
+        if (err) console.log (err);
+        if (!userModel) {
+            console.log('user not found');
+            flag = true;
+        }
+        name = userModel.name;
+    });
+
+    notificationModel.save(function (err) {
+        if (err) {
+            return next(err);
+        }
+        res.status(200).send({"reply":name + " Friend Request Accepted"});
+    });
+};
+
+
+
+
+
+
+
+exports.user_comments_post = function (req, res, next) {
+
+    // console.log("asdasdasd : "+req.file);
+    let fileName;
+    if(req.file)
+    {
+        fileName = req.file.originalname;
+    }
+    else {
+        fileName = null;
+    }
+
+    var postModel = new postsCommentsTable(
+        {
+            postId: req.body.postId,
+            commentedEmail: req.body.commentedEmail,
+            datePosted: req.body.datePosted,
+            textEntered: req.body.textEntered,
+            postImageOrVideo: fileName
+        }
+    );
+
+    postModel.save(function (err) {
+        if (err) {
+            res.status(500).send({"response":"error at server side in posting the post"});
+        }
+        res.status(200).send({"response":"comment Created successfully"});
+    });
+
+};
+
+exports.user_comments_on_post_get = function (req, res, next) {
+    postsCommentsTable.find({postId : req.params.postId}, function(err, userModel){
+        var flag = false;
+        if (err) {
+            console.log(err);
+            res.status(500).send({"error":"server side error in getting the posts data"});
+        }
+        if (!userModel) {
+            console.log('no user found');
+            flag = true;
+        }
+        // const lst = userModel.map(user => user._id);
+        console.log('comments made on this posts are: '+userModel);
+        res.send({userModel,"error":flag});
+    });
+};
+
+exports.user_comment_get_byId = function (req, res, next) {
+    postsCommentsTable.findById(req.params.commentId, function(err, userModel){
+        var flag = false;
+        if (err) {
+            console.log(err);
+            res.status(500).send({"error":"server side error in getting the posts data"});
+        }
+        if (!userModel) {
+            console.log('no post found');
+            flag = true;
+        }
+        // const lst = userModel.map(user => user._id);
+        console.log('specific comment by this id: '+userModel);
         res.send({userModel,"error":flag});
     });
 };
