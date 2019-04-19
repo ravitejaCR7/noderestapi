@@ -6,7 +6,8 @@ const Schema = mongoose.Schema;
 
 const FriendSchema = new Schema(
     {
-        email: [String]
+        emailKey: { type: String, unique: true },
+        listEmail: [String]
     }
 );
 

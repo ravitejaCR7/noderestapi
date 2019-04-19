@@ -1,8 +1,9 @@
 let userTableModel = require('../Models/UserInfoJson');
 let accountPrivacyTable = require('../Models/AccountPrivacyJson');
 let userPostsTable = require('../Models/UserPostsJson');
-let notifiFrndReqTable = require('../Models/Notifications');
 let postsCommentsTable = require('../Models/PostsCommentsJson');
+let notifiFrndReqTable = require('../Models/Notifications');
+let friendsTable = require('../Models/Friends');
 
 
 //Simple version, without validation or sanitation
@@ -203,71 +204,6 @@ exports.user_posting_get_byId = function (req, res, next) {
     });
 };
 
-exports.notification = function (req, res, next) {
-    // console.log(req.file);
-    var notificationModel = new notifiFrndReqTable(
-        {
-
-            emailFrom: req.body.emailFrom,
-            emailTo: req.body.emailTo,
-            accepted: req.body.accepted
-        }
-    );
-
-    var name;
-    userTableModel.findOne ({ email: req.body.emailFrom }, function (err, userModel) {
-        var flag = false;
-        if (err) console.log (err);
-        if (!userModel) {
-            console.log('user not found');
-            flag = true;
-        }
-        name = userModel.name;
-    });
-
-    notificationModel.save(function (err) {
-        if (err) {
-            return next(err);
-        }
-        res.status(200).send({"reply":name + " Friend Request Accepted"});
-    });
-};
-
-exports.addFriend = function (req, res, next) {
-    // console.log(req.file);
-    var notificationModel = new notifiFrndReqTable(
-        {
-
-            emailFrom: req.body.emailFrom,
-            emailTo: req.body.emailTo,
-            accepted: req.body.accepted
-        }
-    );
-
-    var name;
-    userTableModel.findOne ({ email: req.body.emailFrom }, function (err, userModel) {
-        var flag = false;
-        if (err) console.log (err);
-        if (!userModel) {
-            console.log('user not found');
-            flag = true;
-        }
-        name = userModel.name;
-    });
-
-    notificationModel.save(function (err) {
-        if (err) {
-            return next(err);
-        }
-        res.status(200).send({"reply":name + " Friend Request Accepted"});
-    });
-};
-
-
-
-
-
-
 
 exports.user_comments_post = function (req, res, next) {
 
@@ -331,5 +267,171 @@ exports.user_comment_get_byId = function (req, res, next) {
         // const lst = userModel.map(user => user._id);
         console.log('specific comment by this id: '+userModel);
         res.send({userModel,"error":flag});
+    });
+};
+
+
+exports.create_friend_list = function (req, res, next) {
+    var friendsTableModel = new friendsTable(
+        {
+            emailKey: req.params.email,
+            listEmail: [],
+        }
+    );
+
+    friendsTableModel.save(function (err) {
+        if (err) {
+            console.log(err.toString());
+            return next(err);
+        }
+        res.send('new friend list Created successfully')
+    });
+};
+
+exports.acceptingFriendRequest = function (req, res, next) {
+    console.log("asd : "+req.params.fromEmail );
+    friendsTable.findOneAndUpdate( { emailKey: req.params.fromEmail }, {$push : {listEmail : req.params.toEmail}}, function (err, product) {
+        if (err) {
+            console.log(err.toString());
+            return next(err);
+        }
+
+        console.log("asd 111 : "+product);
+
+        friendsTable.findOneAndUpdate( { emailKey: req.params.toEmail }, {$push : {listEmail : req.params.fromEmail}} , function (err, product) {
+            if (err) {
+                console.log(err.toString());
+                return next(err);
+            }
+
+            res.send({"res":"friend List updated."});
+        });
+    });
+};
+
+exports.removeFriend = function (req, res, next) {
+    console.log("asd : "+req.params.fromEmail );
+    friendsTable.findOneAndUpdate( { emailKey: req.params.fromEmail }, {$pull : {listEmail : req.params.toEmail}}, function (err, product) {
+        if (err) {
+            console.log(err.toString());
+            return next(err);
+        }
+
+        console.log("asd 111 : "+product);
+
+        friendsTable.findOneAndUpdate( { emailKey: req.params.toEmail }, {$pull : {listEmail : req.params.fromEmail}} , function (err, product) {
+            if (err) {
+                console.log(err.toString());
+                return next(err);
+            }
+
+            res.send({"res":"friend List updated."});
+        });
+    });
+};
+
+
+exports.createNotificationForFriends = function (req, res, next) {
+    // console.log(req.file);
+    var notificationModel = new notifiFrndReqTable(
+        {
+
+            emailFrom: req.params.fromEmail,
+            emailTo: req.params.toEmail,
+            accepted: false
+        }
+    );
+
+    notificationModel.save(function (err) {
+        if (err) {
+            return next(err);
+        }
+        res.status(200).send({"reply":" Friend Request Notification created"});
+    });
+};
+
+
+
+exports.updateNotificationForFriends = function (req, res, next) {
+    // console.log(req.file);
+    notifiFrndReqTable.findOneAndUpdate( { emailFrom: req.params.fromEmail, emailTo: req.params.toEmail } , {$set: {accepted: req.body.accepted}}, function (err, product) {
+        if (err) {
+            console.log(err.toString());
+            return next(err);
+        }
+        res.send({"res":"friend notification Info udpated."});
+    });
+};
+
+
+exports.getTheFriendRequestInfo = function (req, res, next) {
+    var resStr = "1";
+    var bool = false;
+
+
+    console.log("from : "+req.params.fromEmail+" to : "+req.params.toEmail );
+    notifiFrndReqTable.findOne( { emailFrom: req.params.fromEmail, emailTo: req.params.toEmail } , function(err, userModel) {
+
+
+        if (err) {
+            console.log(err);
+            res.status(500).send({"error":"server side error in getting the posts data"});
+        }
+        if (userModel) {
+            bool = true;
+            console.log('friend req found 1');
+
+
+
+            if(userModel.accepted == false){
+                //new request which has not been accepted yet
+                resStr = "2";
+                console.log("two : "+userModel);
+            }
+            else
+            {
+                //already friends
+                resStr = "3";
+                console.log("three : "+userModel);
+            }
+
+            res.status(200).send({ userModel, "res": resStr });
+
+        }
+
+        if(!bool){
+            notifiFrndReqTable.findOne( { emailFrom: req.params.toEmail, emailTo: req.params.fromEmail } , function(err, userModel) {
+
+                if (err) {
+                    console.log(err);
+                    res.status(500).send({"error":"server side error in getting the posts data"});
+                }
+                if (userModel) {
+                    console.log('friend req found 2');
+
+
+                    if(userModel.accepted == false){
+                        //toEmail has already sent request to fromEmail. fromEmail has to accept the request
+                        resStr = "4";
+                        console.log("four : "+userModel);
+                    }
+                }
+
+                res.status(200).send({ userModel, "res": resStr });
+
+            });
+        }
+    });
+};
+
+
+exports.cancelNotificationOrRequest = function (req, res, next) {
+    // console.log(req.file);
+    notifiFrndReqTable.findOneAndRemove( { emailFrom: req.params.fromEmail, emailTo: req.params.toEmail } , function (err, product) {
+        if (err) {
+            console.log(err.toString());
+            return next(err);
+        }
+        res.send({"res":"cancelled friend request."});
     });
 };
