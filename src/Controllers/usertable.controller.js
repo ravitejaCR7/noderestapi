@@ -52,7 +52,7 @@ exports.user_delete = function (req, res, next) {
     // console.log(`delete req ${req.params.id}`);
     userTableModel.findByIdAndRemove(req.params.id, function (err) {
         if (err) return next(err);
-        res.send('Deleted User successfully!');
+        res.send({"res":'Deleted User successfully!'});
     })
 };
 
@@ -60,7 +60,7 @@ exports.user_update = function (req, res, next) {
 
     userTableModel.findByIdAndUpdate(req.params.id, {$set: req.body}, function (err, product) {
         if (err) return next(err);
-        res.send('User Info udpated.');
+        res.send({"res":'User Info udpated.'});
     });
 };
 
@@ -73,9 +73,7 @@ exports.specific_user_details = function (req, res, next) {
             flag = true;
         }
         // do something with user
-        // res.send(userModel);
         res.send({userModel,"error":flag});
-        // res.send({"id":userModel._id, "name":userModel.name, "address": userModel.address, });
     });
 };
 
@@ -90,7 +88,6 @@ exports.specific_user_Login_check = function(req, res, next) {
         // do something with user
         // res.send(userModel);
         res.send({userModel,"error":flag});
-        // res.send({"id":userModel._id, "name":userModel.name, "address": userModel.address, });
     });
 };
 
@@ -286,7 +283,7 @@ exports.create_friend_list = function (req, res, next) {
             console.log(err.toString());
             return next(err);
         }
-        res.send('new friend list Created successfully')
+        res.send({"res":'new friend list Created successfully'});
     });
 };
 
