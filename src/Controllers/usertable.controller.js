@@ -13,6 +13,7 @@ exports.test = function (req, res) {
 
 exports.user_create = function (req, res, next) {
     // console.log(req.file);
+    var bool = false;
     var userModel = new userTableModel(
         {
 
@@ -27,9 +28,10 @@ exports.user_create = function (req, res, next) {
 
     userModel.save(function (err) {
         if (err) {
+            bool = true;
             return next(err);
         }
-        res.send('User Created successfully')
+        res.send({"error": bool});
     });
 };
 
