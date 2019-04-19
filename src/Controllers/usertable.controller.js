@@ -22,7 +22,7 @@ exports.user_create = function (req, res, next) {
             dateOfBirth: req.body.dateOfBirth,
             email: req.body.email,
             password: req.body.password,
-            personPic: req.file.path
+            personPic: req.file.originalname
         }
     );
 
