@@ -303,6 +303,19 @@ exports.acceptingFriendRequest = function (req, res, next) {
                 return next(err);
             }
 
+
+            notifiFrndReqTable.findOneAndUpdate( { emailFrom: req.params.toEmail, emailTo: req.params.fromEmail }, {$set: {accepted: true}} , function (err, product) {
+                if (err) {
+                    console.log(err.toString());
+                    return next(err);
+                }
+
+                if(product){
+                    console.log("changed the notifications table row to true if the friend accepts the request");
+                }
+            });
+
+
             res.send({"res":"friend List updated."});
         });
     });
@@ -323,6 +336,31 @@ exports.removeFriend = function (req, res, next) {
                 console.log(err.toString());
                 return next(err);
             }
+
+
+            notifiFrndReqTable.findOneAndRemove( { emailFrom: req.params.fromEmail, emailTo: req.params.toEmail } , function (err, product) {
+                if (err) {
+                    console.log(err.toString());
+                    return next(err);
+                }
+
+                if(product){
+                    console.log("removing From to To in notification table");
+                }
+            });
+
+            notifiFrndReqTable.findOneAndRemove( { emailFrom: req.params.toEmail, emailTo: req.params.fromEmail } , function (err, product) {
+                if (err) {
+                    console.log(err.toString());
+                    return next(err);
+                }
+
+                if(product){
+                    console.log("removing To to From in notification table");
+                }
+
+            });
+
 
             res.send({"res":"friend List updated."});
         });
