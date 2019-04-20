@@ -22,7 +22,7 @@ exports.user_create = function (req, res, next) {
             dateOfBirth: req.body.dateOfBirth,
             email: req.body.email,
             password: req.body.password,
-            personPic: req.file.path
+            personPic: req.file.originalname
         }
     );
 
@@ -52,7 +52,7 @@ exports.user_delete = function (req, res, next) {
     // console.log(`delete req ${req.params.id}`);
     userTableModel.findByIdAndRemove(req.params.id, function (err) {
         if (err) return next(err);
-        res.send('Deleted User successfully!');
+        res.send({"res":'Deleted User successfully!'});
     })
 };
 
@@ -60,7 +60,7 @@ exports.user_update = function (req, res, next) {
 
     userTableModel.findByIdAndUpdate(req.params.id, {$set: req.body}, function (err, product) {
         if (err) return next(err);
-        res.send('User Info udpated.');
+        res.send({"res":'User Info udpated.'});
     });
 };
 
@@ -73,9 +73,7 @@ exports.specific_user_details = function (req, res, next) {
             flag = true;
         }
         // do something with user
-        // res.send(userModel);
         res.send({userModel,"error":flag});
-        // res.send({"id":userModel._id, "name":userModel.name, "address": userModel.address, });
     });
 };
 
@@ -90,7 +88,6 @@ exports.specific_user_Login_check = function(req, res, next) {
         // do something with user
         // res.send(userModel);
         res.send({userModel,"error":flag});
-        // res.send({"id":userModel._id, "name":userModel.name, "address": userModel.address, });
     });
 };
 
@@ -286,7 +283,7 @@ exports.create_friend_list = function (req, res, next) {
             console.log(err.toString());
             return next(err);
         }
-        res.send('new friend list Created successfully')
+        res.send({"res":'new friend list Created successfully'});
     });
 };
 
@@ -305,6 +302,19 @@ exports.acceptingFriendRequest = function (req, res, next) {
                 console.log(err.toString());
                 return next(err);
             }
+
+
+            notifiFrndReqTable.findOneAndUpdate( { emailFrom: req.params.toEmail, emailTo: req.params.fromEmail }, {$set: {accepted: true}} , function (err, product) {
+                if (err) {
+                    console.log(err.toString());
+                    return next(err);
+                }
+
+                if(product){
+                    console.log("changed the notifications table row to true if the friend accepts the request");
+                }
+            });
+
 
             res.send({"res":"friend List updated."});
         });
@@ -326,6 +336,31 @@ exports.removeFriend = function (req, res, next) {
                 console.log(err.toString());
                 return next(err);
             }
+
+
+            notifiFrndReqTable.findOneAndRemove( { emailFrom: req.params.fromEmail, emailTo: req.params.toEmail } , function (err, product) {
+                if (err) {
+                    console.log(err.toString());
+                    return next(err);
+                }
+
+                if(product){
+                    console.log("removing From to To in notification table");
+                }
+            });
+
+            notifiFrndReqTable.findOneAndRemove( { emailFrom: req.params.toEmail, emailTo: req.params.fromEmail } , function (err, product) {
+                if (err) {
+                    console.log(err.toString());
+                    return next(err);
+                }
+
+                if(product){
+                    console.log("removing To to From in notification table");
+                }
+
+            });
+
 
             res.send({"res":"friend List updated."});
         });
