@@ -4,6 +4,8 @@ let userPostsTable = require('../Models/UserPostsJson');
 let postsCommentsTable = require('../Models/PostsCommentsJson');
 let notifiFrndReqTable = require('../Models/Notifications');
 let friendsTable = require('../Models/Friends');
+let chatRoomTable = require('../Models/ChatGroupsJson');
+let notificationCommentsTable = require('../Models/NotificationsComments');
 
 
 //Simple version, without validation or sanitation
@@ -269,7 +271,6 @@ exports.user_comment_get_byId = function (req, res, next) {
     });
 };
 
-
 exports.create_friend_list = function (req, res, next) {
     var friendsTableModel = new friendsTable(
         {
@@ -470,5 +471,161 @@ exports.cancelNotificationOrRequest = function (req, res, next) {
             return next(err);
         }
         res.send({"res":"cancelled friend request."});
+    });
+};
+
+
+exports.isCommentableStatus = function (req, res, next) {
+
+    notificationCommentsTable.findOne( { commentedByEmail: req.params.myId, commentedOnEmail: req.params.friendId, postId: req.params.postId } , function(err, userModel) {
+
+
+        if (err) {
+            console.log(err);
+            res.status(500).send({"error":"server side error in getting the request comment info"});
+        }
+        if (userModel) {
+            console.log('isCommentableStatus done');
+
+            res.status(200).send({ userModel });
+
+        }
+        else {
+            res.send({"response": "no such notification"});
+        }
+    });
+};
+
+exports.isCommentableStatusChange = function (req, res, next) {
+
+    notificationCommentsTable.findOneAndUpdate( { commentedByEmail: req.params.myId, commentedOnEmail: req.params.friendId, postId: req.params.postId }, {$set: {status: req.params.status}} , function(err, userModel) {
+
+
+        if (err) {
+            console.log(err);
+            res.status(500).send({"error":"server side error in updating the request comment info"});
+        }
+        if (userModel) {
+            console.log('isCommentableStatusChange done');
+
+            res.status(200).send({ "response":"successfully updated the status" });
+
+        }
+        else{
+            res.send({"response": "no such notification"});
+        }
+    });
+};
+
+exports.isCommentableCreateNew = function (req, res, next) {
+
+    var isCommentableNewObj = new notificationCommentsTable(
+        {
+            commentedOnEmail: req.params.friendId,
+            commentedByEmail: req.params.myId,
+            status: 1,
+            postId: req.params.postId
+        }
+    );
+
+    isCommentableNewObj.save(function (err) {
+        if (err) {
+            res.send({"response": "comments notification created un-successfully"});
+            return next(err);
+        }
+        res.send({"response": "created successfully"});
+    });
+
+};
+
+
+exports.isCommentableRemoveNotification = function (req, res, next) {
+
+    notificationCommentsTable.findOneAndRemove( { commentedByEmail: req.params.myId, commentedOnEmail: req.params.friendId, postId: req.params.postId,  }, function(err, userModel) {
+
+        if (err) {
+            console.log(err);
+            res.status(500).send({"error":"server side error in updating the request comment info"});
+        }
+        if (userModel) {
+            console.log('isCommentableRemoveNotification done');
+
+            res.status(200).send({ "response": "deleted successfully" });
+
+        }
+        else{
+            res.send({"response": "no such notification"});
+        }
+    });
+
+};
+
+
+
+exports.getTheChatRoom = function (req, res, next) {
+    var bool = false;
+
+    console.log("from : "+req.params.fromEmail+" to : "+req.params.toEmail );
+    chatRoomTable.findOne( { fromEmail: req.params.fromEmail, toEmail: req.params.toEmail } , function(err, userModel) {
+
+
+        if (err) {
+            console.log(err);
+            res.status(500).send({"error":"server side error in getting the posts data"});
+        }
+        else if (userModel) {
+            bool = true;
+            console.log('found chatId in from - to');
+
+            res.status(200).send({ userModel, "response":"from:to" });
+
+        }
+        else if(!userModel)
+        {
+            console.log('not found chatId in from - to');
+        }
+
+        if(!bool){
+            chatRoomTable.findOne( { fromEmail: req.params.toEmail, toEmail: req.params.fromEmail } , function(err, userModel) {
+
+                if (err) {
+                    console.log(err);
+                    res.status(500).send({"error":"server side error in getting the posts data"});
+                }
+                if (userModel) {
+                    console.log('found chatId in to - from');
+
+
+                    res.status(200).send({ userModel, "response":"to:from" });
+
+                }
+                else if(!userModel){
+                    console.log('not found chatId in to - from');
+
+                    var chatRoomObj = new chatRoomTable(
+                        {
+                            fromEmail: req.params.fromEmail,
+                            toEmail: req.params.toEmail
+                        }
+                    );
+
+                    chatRoomObj.save(function (err, userModelCreated) {
+                        if (err) {
+                            console.log(err);
+                            return next(err);
+                        }
+                        else{
+                            console.log("chatGroup : "+userModelCreated);
+                            res.status(200).send({ userModelCreated , "reply":"created the chat"});
+                        }
+                    });
+                }
+
+                // res.status(200).send({ userModel, "response":"create the chat" });
+
+
+
+            });
+        }
     });
 };

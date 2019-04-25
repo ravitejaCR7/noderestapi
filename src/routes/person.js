@@ -154,7 +154,7 @@ router.get('/acceptingFriendRequest/:fromEmail/:toEmail', userTable_controller.a
 router.get('/removeFriend/:fromEmail/:toEmail', userTable_controller.removeFriend);
 
 
-//Notifications
+//Notifications for friends
 router.get('/createNotificationForFriends/:fromEmail/:toEmail', userTable_controller.createNotificationForFriends);
 
 router.put('/updateNotificationForFriends/:fromEmail/:toEmail', userTable_controller.updateNotificationForFriends);
@@ -162,5 +162,18 @@ router.put('/updateNotificationForFriends/:fromEmail/:toEmail', userTable_contro
 router.get('/getTheFriendRequestInfo/:fromEmail/:toEmail', userTable_controller.getTheFriendRequestInfo);
 
 router.get('/cancelNotificationOrRequest/:fromEmail/:toEmail', userTable_controller.cancelNotificationOrRequest);
+
+//Notifications for comments
+router.get('/isCommentableInfo/:friendId/:myId/:postId' , userTable_controller.isCommentableStatus);
+
+router.get('/isCommentableStausChange/:friendId/:myId/:postId/:status' , userTable_controller.isCommentableStatusChange);
+
+router.get('/isCommentableCreateNew/:friendId/:myId/:postId' , userTable_controller.isCommentableCreateNew);
+
+router.get('/isCommentableRemoveNotification/:friendId/:myId/:postId' , userTable_controller.isCommentableRemoveNotification);
+
+
+//Messenging
+router.get('/getTheChatRoom/:fromEmail/:toEmail', userTable_controller.getTheChatRoom);
 
 module.exports = router;

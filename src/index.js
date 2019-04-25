@@ -2,6 +2,7 @@
 const mongoose = require('mongoose');
 const express = require('express');
 var bodyParser = require('body-parser');
+
 console.log("Roonaldoooooo!");
 
 
@@ -53,4 +54,11 @@ app.use((req, res, next) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, ()=> console.info(`server started listening on ${PORT}`));
+var server =  app.listen(PORT, ()=> console.info(`server started listening on ${PORT}`));
+
+module.exports.serverObj = server;
+
+//Messenging
+let messengingObject = require('./Messenging/Messages');
+
+
