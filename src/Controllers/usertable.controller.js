@@ -142,11 +142,49 @@ exports.user_privacy_update = function (req, res, next) {
     accountPrivacyTable.findOneAndUpdate({email: req.params.email}, {$set: {privacy: req.body.privacy}}, function (err, product) {
         if (err)
         {
-            res.status(500).send({"reply":"Privacy settings udpated."});
+            res.status(500).send({"reply":"Privacy settings udpated error in server."});
         }
         res.status(200).send({"reply":"Privacy settings udpated."});
     });
 };
+
+
+
+exports.areTheseTwoConnected = function(req, res, next) {
+    var privacySettings="";
+    accountPrivacyTable.findOne({ email: req.params.friendId }, function (err, userModel) {
+        privacySettings = userModel.privacy;
+        console.log("pri : "+privacySettings);
+
+        if(privacySettings === "public")
+        {
+            res.status(200).send({"res": true});
+        }
+        else if(privacySettings === "Private")////Friends////Friends of friends
+        {
+            res.status(200).send({"res": false});
+        }
+        else if(privacySettings === "Friends")
+        {
+            friendsTable.findOne( { email: req.params.friendId, listEmail: req.params.myId }, function (err, friendsListObj) {
+                if(err){
+                    res.status(500).send({"res":"areTheseTwoConnected - friend error in server."});
+                }
+                if( friendsListObj ) {
+                    res.status(200).send({"res": true});
+                }
+                else{
+                    res.status(200).send({"res": false});
+                }
+            });
+        }
+        else if(privacySettings === "Friends of friends") {
+
+        }
+
+    });
+};
+
 
 exports.user_posting_post = function (req, res, next) {
 
@@ -491,14 +529,25 @@ exports.isCommentableStatus = function (req, res, next) {
 
         }
         else {
-            res.send({"response": "no such notification"});
+            res.send({ userModel });
         }
     });
 };
 
 exports.isCommentableStatusChange = function (req, res, next) {
 
-    notificationCommentsTable.findOneAndUpdate( { commentedByEmail: req.params.myId, commentedOnEmail: req.params.friendId, postId: req.params.postId }, {$set: {status: req.params.status}} , function(err, userModel) {
+
+    notificationCommentsTable.findByIdAndUpdate(req.params.commentId, {$set: { status: req.params.status } }, function (err, product) {
+        if (err) {
+            console.log(err);
+            res.send({"res": 0 });
+            return next(err);
+        }
+        console.log("updated the comment status");
+        res.send({"res": 1 });
+    });
+
+    /*notificationCommentsTable.findOneAndUpdate( { commentedByEmail: req.params.friendId, commentedOnEmail: req.params.myId, postId: req.params.postId }, {$set: {status: req.params.status}} , function(err, userModel) {
 
 
         if (err) {
@@ -514,7 +563,7 @@ exports.isCommentableStatusChange = function (req, res, next) {
         else{
             res.send({"response": "no such notification"});
         }
-    });
+    });*/
 };
 
 exports.isCommentableCreateNew = function (req, res, next) {
@@ -560,6 +609,37 @@ exports.isCommentableRemoveNotification = function (req, res, next) {
 
 };
 
+
+exports.commentsNotificationsByThisUser = function (req, res, next) {
+
+    notificationCommentsTable.find( { commentedOnEmail: req.params.myId, status: 1 }, function(err, userModel) {
+        console.log("param : "+req.params.myId );
+        var flag = false;
+        if (err) {
+            console.log(err);
+            res.status(500).send({"error":"server side error in getting the posts data"});
+        }
+        if (!userModel) {
+            console.log('no user found');
+            flag = true;
+        }
+        // const lst = userModel.map(user => user._id);
+        console.log('comments notification for this user: '+userModel);
+        res.send({userModel,"error":flag});
+
+    });
+
+};
+
+
+exports.thisCommentDetails = function (req, res, next) {
+
+    notificationCommentsTable.findById(req.params.commentId, function (err, userModel) {
+        if (err) return next(err);
+        res.send(userModel);
+    });
+
+};
 
 
 exports.getTheChatRoom = function (req, res, next) {
@@ -628,4 +708,14 @@ exports.getTheChatRoom = function (req, res, next) {
             });
         }
     });
+};
+
+
+exports.getTheChatRoomFriends = function (req, res, next) {
+
+    friendsTable.findOne( {emailKey: req.params.fromEmail}, function (err, userModel) {
+        if (err) return next(err);
+        res.send(userModel);
+    });
+
 };

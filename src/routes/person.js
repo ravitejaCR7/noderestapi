@@ -128,6 +128,8 @@ router.post('/privacySettingsCreate', userTable_controller.user_privacy_post);
 
 router.put('/privacySettingsChange/:email', userTable_controller.user_privacy_update);
 
+router.get('/areTheseTwoConnected/:myId/:friendId', userTable_controller.areTheseTwoConnected);
+
 
 //PostsMadeByUser
 router.post('/postedByThisUser',uploadImagesAndVideosToPosts.single('postImageOrVideo') , userTable_controller.user_posting_post);
@@ -166,14 +168,20 @@ router.get('/cancelNotificationOrRequest/:fromEmail/:toEmail', userTable_control
 //Notifications for comments
 router.get('/isCommentableInfo/:friendId/:myId/:postId' , userTable_controller.isCommentableStatus);
 
-router.get('/isCommentableStausChange/:friendId/:myId/:postId/:status' , userTable_controller.isCommentableStatusChange);
+router.get('/isCommentableStausChange/:commentId/:status' , userTable_controller.isCommentableStatusChange);
 
 router.get('/isCommentableCreateNew/:friendId/:myId/:postId' , userTable_controller.isCommentableCreateNew);
 
 router.get('/isCommentableRemoveNotification/:friendId/:myId/:postId' , userTable_controller.isCommentableRemoveNotification);
 
+router.get('/commentsNotifications/:myId' , userTable_controller.commentsNotificationsByThisUser);
+
+router.get('/thisCommentDetails/:commentId' , userTable_controller.thisCommentDetails);
+
 
 //Messenging
 router.get('/getTheChatRoom/:fromEmail/:toEmail', userTable_controller.getTheChatRoom);
+
+router.get('/getTheChatRoomFriends/:fromEmail', userTable_controller.getTheChatRoomFriends);
 
 module.exports = router;
