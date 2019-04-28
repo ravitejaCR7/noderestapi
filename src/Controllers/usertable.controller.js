@@ -561,7 +561,6 @@ exports.cancelNotificationOrRequest = function (req, res, next) {
     });
 };
 
-<<<<<<< HEAD
 exports.getFriendRequestNotifications = function (req, res, next) {
     notifiFrndReqTable.find({emailTo: req.params.email, accepted: false}, function (err, notiFrndReqs) {
         if(err) {
@@ -571,7 +570,7 @@ exports.getFriendRequestNotifications = function (req, res, next) {
         }
         res.send(notiFrndReqs);
     });
-=======
+
 
 exports.isCommentableStatus = function (req, res, next) {
 
@@ -778,5 +777,4 @@ exports.getTheChatRoomFriends = function (req, res, next) {
         res.send(userModel);
     });
 
->>>>>>> 5f29a62e53bf83ba52e4b5c744879b7f029eb39c
 };
