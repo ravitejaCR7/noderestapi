@@ -163,4 +163,6 @@ router.get('/getTheFriendRequestInfo/:fromEmail/:toEmail', userTable_controller.
 
 router.get('/cancelNotificationOrRequest/:fromEmail/:toEmail', userTable_controller.cancelNotificationOrRequest);
 
+router.get('/getFriendRequestNotifications/:email', userTable_controller.getFriendRequestNotifications)
+
 module.exports = router;

@@ -452,6 +452,11 @@ exports.getTheFriendRequestInfo = function (req, res, next) {
                         resStr = "4";
                         console.log("four : "+userModel);
                     }
+                    else {
+                        //already friends
+                        resStr = "3";
+                        console.log("three : "+userModel);
+                    }
                 }
 
                 res.status(200).send({ userModel, "res": resStr });
@@ -470,5 +475,16 @@ exports.cancelNotificationOrRequest = function (req, res, next) {
             return next(err);
         }
         res.send({"res":"cancelled friend request."});
+    });
+};
+
+exports.getFriendRequestNotifications = function (req, res, next) {
+    notifiFrndReqTable.find({emailTo: req.params.email, accepted: false}, function (err, notiFrndReqs) {
+        if(err) {
+            console.log(err);
+            res.status(500).send("Internal Server Error");
+            return next(err);
+        }
+        res.send(notiFrndReqs);
     });
 };
