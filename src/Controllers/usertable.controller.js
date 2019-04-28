@@ -166,7 +166,9 @@ exports.areTheseTwoConnected = function(req, res, next) {
         }
         else if(privacySettings === "Friends")
         {
-            friendsTable.findOne( { email: req.params.friendId, listEmail: req.params.myId }, function (err, friendsListObj) {
+            console.log("from : "+req.params.myId+" to : "+req.params.friendId);
+            friendsTable.findOne( { emailKey: req.params.friendId, listEmail: req.params.myId }, function (err, friendsListObj) {
+                console.log("from : "+err+" to : "+friendsListObj);
                 if(err){
                     res.status(500).send({"res":"areTheseTwoConnected - friend error in server."});
                 }
@@ -179,9 +181,51 @@ exports.areTheseTwoConnected = function(req, res, next) {
             });
         }
         else if(privacySettings === "Friends of friends") {
+            console.log("from : "+req.params.myId+" to : "+req.params.friendId);
 
+            //to check if they both are directly related
+            friendsTable.findOne({
+                emailKey: req.params.friendId,
+                listEmail: req.params.myId
+            })
+                .then(friendsListObj => {
+                    if( friendsListObj ) {
+                        console.log("directly friends");
+                        res.status(200).send({"res": true});
+                        return new Error({ ERROR_CODE: "FOUND" });
+                    }
+
+
+                    return friendsTable.findOne({ emailKey: req.params.friendId }).select({ "listEmail": 1, "_id": 0});
+
+                })
+                .then(list =>{
+                    var emails = Array.from(list.listEmail);
+                    return friendsTable.find({ emailKey: emails }).select(["emailKey", "listEmail"]);
+                })
+                .then(friends => {
+                    for (let i = 0; i < friends.length; i++){
+                        const { listEmail } = friends[i];
+                        if (listEmail.includes(req.params.myId)) {
+                            return res.status(200).send({"res":true});
+                        }
+                    }
+
+                    return res.status(200).send({
+                        "res":false
+                    })
+                })
+                .catch(ex => {
+                    if (ex.ERROR_CODE === "FOUND") {
+                        return res.status(200).send({"res":true});
+                    }
+                    console.error(ex);
+                    res.status(500).send({
+                        "res":"areTheseTwoConnected - friend error in server.",
+                        ex
+                    });
+                })
         }
-
     });
 };
 
