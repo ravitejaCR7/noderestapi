@@ -2,7 +2,11 @@
 const mongoose = require('mongoose');
 const express = require('express');
 var bodyParser = require('body-parser');
+<<<<<<< HEAD
 var http = require('http');
+=======
+
+>>>>>>> 5f29a62e53bf83ba52e4b5c744879b7f029eb39c
 console.log("Roonaldoooooo!");
 
 
@@ -60,4 +64,11 @@ var server = http.createServer(app);
 var io = require('socket.io').listen(server);
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, ()=> console.info(`server started listening on ${PORT}`));
+var server =  app.listen(PORT, ()=> console.info(`server started listening on ${PORT}`));
+
+module.exports.serverObj = server;
+
+//Messenging
+let messengingObject = require('./Messenging/Messages');
+
+

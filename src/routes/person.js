@@ -128,6 +128,8 @@ router.post('/privacySettingsCreate', userTable_controller.user_privacy_post);
 
 router.put('/privacySettingsChange/:email', userTable_controller.user_privacy_update);
 
+router.get('/areTheseTwoConnected/:myId/:friendId', userTable_controller.areTheseTwoConnected);
+
 
 //PostsMadeByUser
 router.post('/postedByThisUser',uploadImagesAndVideosToPosts.single('postImageOrVideo') , userTable_controller.user_posting_post);
@@ -154,7 +156,7 @@ router.get('/acceptingFriendRequest/:fromEmail/:toEmail', userTable_controller.a
 router.get('/removeFriend/:fromEmail/:toEmail', userTable_controller.removeFriend);
 
 
-//Notifications
+//Notifications for friends
 router.get('/createNotificationForFriends/:fromEmail/:toEmail', userTable_controller.createNotificationForFriends);
 
 router.put('/updateNotificationForFriends/:fromEmail/:toEmail', userTable_controller.updateNotificationForFriends);
@@ -163,6 +165,27 @@ router.get('/getTheFriendRequestInfo/:fromEmail/:toEmail', userTable_controller.
 
 router.get('/cancelNotificationOrRequest/:fromEmail/:toEmail', userTable_controller.cancelNotificationOrRequest);
 
+<<<<<<< HEAD
 router.get('/getFriendRequestNotifications/:email', userTable_controller.getFriendRequestNotifications)
+=======
+//Notifications for comments
+router.get('/isCommentableInfo/:friendId/:myId/:postId' , userTable_controller.isCommentableStatus);
+
+router.get('/isCommentableStausChange/:commentId/:status' , userTable_controller.isCommentableStatusChange);
+
+router.get('/isCommentableCreateNew/:friendId/:myId/:postId' , userTable_controller.isCommentableCreateNew);
+
+router.get('/isCommentableRemoveNotification/:friendId/:myId/:postId' , userTable_controller.isCommentableRemoveNotification);
+
+router.get('/commentsNotifications/:myId' , userTable_controller.commentsNotificationsByThisUser);
+
+router.get('/thisCommentDetails/:commentId' , userTable_controller.thisCommentDetails);
+
+
+//Messenging
+router.get('/getTheChatRoom/:fromEmail/:toEmail', userTable_controller.getTheChatRoom);
+
+router.get('/getTheChatRoomFriends/:fromEmail', userTable_controller.getTheChatRoomFriends);
+>>>>>>> 5f29a62e53bf83ba52e4b5c744879b7f029eb39c
 
 module.exports = router;
