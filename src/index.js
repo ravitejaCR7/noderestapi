@@ -2,11 +2,8 @@
 const mongoose = require('mongoose');
 const express = require('express');
 var bodyParser = require('body-parser');
-<<<<<<< HEAD
 var http = require('http');
-=======
 
->>>>>>> 5f29a62e53bf83ba52e4b5c744879b7f029eb39c
 console.log("Roonaldoooooo!");
 
 
