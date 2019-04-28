@@ -165,9 +165,9 @@ router.get('/getTheFriendRequestInfo/:fromEmail/:toEmail', userTable_controller.
 
 router.get('/cancelNotificationOrRequest/:fromEmail/:toEmail', userTable_controller.cancelNotificationOrRequest);
 
-<<<<<<< HEAD
+
 router.get('/getFriendRequestNotifications/:email', userTable_controller.getFriendRequestNotifications)
-=======
+
 //Notifications for comments
 router.get('/isCommentableInfo/:friendId/:myId/:postId' , userTable_controller.isCommentableStatus);
 
@@ -186,6 +186,6 @@ router.get('/thisCommentDetails/:commentId' , userTable_controller.thisCommentDe
 router.get('/getTheChatRoom/:fromEmail/:toEmail', userTable_controller.getTheChatRoom);
 
 router.get('/getTheChatRoomFriends/:fromEmail', userTable_controller.getTheChatRoomFriends);
->>>>>>> 5f29a62e53bf83ba52e4b5c744879b7f029eb39c
+
 
 module.exports = router;
