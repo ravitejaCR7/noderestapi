@@ -6,7 +6,7 @@ let notifiFrndReqTable = require('../Models/Notifications');
 let friendsTable = require('../Models/Friends');
 let chatRoomTable = require('../Models/ChatGroupsJson');
 let notificationCommentsTable = require('../Models/NotificationsComments');
-
+const Bcrypt = require("bcryptjs");
 
 //Simple version, without validation or sanitation
 exports.test = function (req, res) {
@@ -16,6 +16,7 @@ exports.test = function (req, res) {
 exports.user_create = function (req, res, next) {
     // console.log(req.file);
     var bool = false;
+    req.body.password = Bcrypt.hashSync(req.body.password, 10);
     var userModel = new userTableModel(
         {
 
@@ -80,10 +81,10 @@ exports.specific_user_details = function (req, res, next) {
 };
 
 exports.specific_user_Login_check = function(req, res, next) {
-    userTableModel.findOne ({ email: req.params.email, password: req.params.password }, function (err, userModel) {
+    userTableModel.findOne ({ email: req.params.email }, function (err, userModel) {
         var flag = false;
         if (err) console.log (err);
-        if (!userModel) {
+        if (!userModel && !Bcrypt.compareSync(req.params.password, userModel.password)) {
             console.log('user not found');
             flag = true;
         }
@@ -944,3 +945,19 @@ exports.deleteThisUserFromPostsTable = function (req, res, next) {
         res.send({"res":true});
     });
 };
+exports.emailDuplicationCheck = function (req, res, next) {
+    console.log(req.body);
+    userTableModel.findOne ({ email: req.body.email }, function (err, userModel) {
+        var flag = true;
+        console.log("email "+req.body.email);
+        if (err) console.log (err);
+        if (!userModel) {
+            console.log('user not found');
+            flag = false;
+        }
+        // do something with user
+        res.send(flag);
+    });
+
+};
+
