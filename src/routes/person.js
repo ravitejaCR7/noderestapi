@@ -138,6 +138,8 @@ router.get('/postedByThisUser/:email' , userTable_controller.user_posting_get);
 
 router.get('/getThisPost/:id' , userTable_controller.user_posting_get_byId);
 
+router.get('/deleteThisPost/:id' , userTable_controller.user_post_delete_byId);
+
 
 
 //posts comments
@@ -187,5 +189,22 @@ router.get('/getTheChatRoom/:fromEmail/:toEmail', userTable_controller.getTheCha
 
 router.get('/getTheChatRoomFriends/:fromEmail', userTable_controller.getTheChatRoomFriends);
 
+
+//deletion part
+router.get('/deleteThisUserFromUserTable/:friendId', userTable_controller.deleteThisUserFromUserTable);
+
+router.get('/deleteThisUserFromPrivacyTable/:friendId', userTable_controller.deleteThisUserFromPrivacyTable);
+
+router.get('/deleteThisUserFromChatTable/:friendId', userTable_controller.deleteThisUserFromChatTable);
+
+router.get('/deleteThisUserFromCommentsTable/:friendId', userTable_controller.deleteThisUserFromCommentsTable);
+
+router.get('/deleteThisUserFromFriendsTable/:friendId', userTable_controller.deleteThisUserFromFriendsTable);
+
+router.get('/deleteThisUserFromNotifyCommentsTable/:friendId', userTable_controller.deleteThisUserFromNotifyCommentsTable);
+
+router.get('/deleteThisUserFromNotifyFriendsTable/:friendId', userTable_controller.deleteThisUserFromNotifyFriendsTable);
+
+router.get('/deleteThisUserFromPostsTable/:friendId', userTable_controller.deleteThisUserFromPostsTable);
 
 module.exports = router;

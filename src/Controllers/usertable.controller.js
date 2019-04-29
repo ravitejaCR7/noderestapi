@@ -156,7 +156,7 @@ exports.areTheseTwoConnected = function(req, res, next) {
         privacySettings = userModel.privacy;
         console.log("pri : "+privacySettings);
 
-        if(privacySettings === "public")
+        if(privacySettings === "Public")
         {
             res.status(200).send({"res": true});
         }
@@ -284,6 +284,32 @@ exports.user_posting_get_byId = function (req, res, next) {
         // const lst = userModel.map(user => user._id);
         console.log('specific post by this id: '+userModel);
         res.send({userModel,"error":flag});
+    });
+};
+
+
+exports.user_post_delete_byId = function (req, res, next) {
+    userPostsTable.findByIdAndRemove(req.params.id, function(err, userModel){
+        if (err) {
+            console.log(err);
+            return next(err);
+        }
+
+        if(userModel){
+            console.log( "post details"+userModel );
+            postsCommentsTable.deleteMany( {postId: userModel._id }, function (err, model) {
+                if(err) console.log(err);
+                res.send({"res":true});
+            } );
+
+            notificationCommentsTable.deleteMany( {postId: userModel._id }, function (err, commentsModel) {
+                if(err) console.log(err);
+            } );
+        }
+        else {
+            res.send({"res":true});
+        }
+
     });
 };
 
@@ -563,32 +589,35 @@ exports.cancelNotificationOrRequest = function (req, res, next) {
 
 exports.getFriendRequestNotifications = function (req, res, next) {
     notifiFrndReqTable.find({emailTo: req.params.email, accepted: false}, function (err, notiFrndReqs) {
-        if(err) {
+        if (err) {
             console.log(err);
             res.status(500).send("Internal Server Error");
             return next(err);
         }
         res.send(notiFrndReqs);
     });
-
+};
 
 exports.isCommentableStatus = function (req, res, next) {
 
-    notificationCommentsTable.findOne( { commentedByEmail: req.params.myId, commentedOnEmail: req.params.friendId, postId: req.params.postId } , function(err, userModel) {
+    notificationCommentsTable.findOne({
+        commentedByEmail: req.params.myId,
+        commentedOnEmail: req.params.friendId,
+        postId: req.params.postId
+    }, function (err, userModel) {
 
 
         if (err) {
             console.log(err);
-            res.status(500).send({"error":"server side error in getting the request comment info"});
+            res.status(500).send({"error": "server side error in getting the request comment info"});
         }
         if (userModel) {
             console.log('isCommentableStatus done');
 
-            res.status(200).send({ userModel });
+            res.status(200).send({userModel});
 
-        }
-        else {
-            res.send({ userModel });
+        } else {
+            res.send({userModel});
         }
     });
 };
@@ -596,14 +625,14 @@ exports.isCommentableStatus = function (req, res, next) {
 exports.isCommentableStatusChange = function (req, res, next) {
 
 
-    notificationCommentsTable.findByIdAndUpdate(req.params.commentId, {$set: { status: req.params.status } }, function (err, product) {
+    notificationCommentsTable.findByIdAndUpdate(req.params.commentId, {$set: {status: req.params.status}}, function (err, product) {
         if (err) {
             console.log(err);
-            res.send({"res": 0 });
+            res.send({"res": 0});
             return next(err);
         }
         console.log("updated the comment status");
-        res.send({"res": 1 });
+        res.send({"res": 1});
     });
 
     /*notificationCommentsTable.findOneAndUpdate( { commentedByEmail: req.params.friendId, commentedOnEmail: req.params.myId, postId: req.params.postId }, {$set: {status: req.params.status}} , function(err, userModel) {
@@ -649,19 +678,22 @@ exports.isCommentableCreateNew = function (req, res, next) {
 
 exports.isCommentableRemoveNotification = function (req, res, next) {
 
-    notificationCommentsTable.findOneAndRemove( { commentedByEmail: req.params.myId, commentedOnEmail: req.params.friendId, postId: req.params.postId,  }, function(err, userModel) {
+    notificationCommentsTable.findOneAndRemove({
+        commentedByEmail: req.params.myId,
+        commentedOnEmail: req.params.friendId,
+        postId: req.params.postId,
+    }, function (err, userModel) {
 
         if (err) {
             console.log(err);
-            res.status(500).send({"error":"server side error in updating the request comment info"});
+            res.status(500).send({"error": "server side error in updating the request comment info"});
         }
         if (userModel) {
             console.log('isCommentableRemoveNotification done');
 
-            res.status(200).send({ "response": "deleted successfully" });
+            res.status(200).send({"response": "deleted successfully"});
 
-        }
-        else{
+        } else {
             res.send({"response": "no such notification"});
         }
     });
@@ -671,20 +703,20 @@ exports.isCommentableRemoveNotification = function (req, res, next) {
 
 exports.commentsNotificationsByThisUser = function (req, res, next) {
 
-    notificationCommentsTable.find( { commentedOnEmail: req.params.myId, status: 1 }, function(err, userModel) {
-        console.log("param : "+req.params.myId );
+    notificationCommentsTable.find({commentedOnEmail: req.params.myId, status: 1}, function (err, userModel) {
+        console.log("param : " + req.params.myId);
         var flag = false;
         if (err) {
             console.log(err);
-            res.status(500).send({"error":"server side error in getting the posts data"});
+            res.status(500).send({"error": "server side error in getting the posts data"});
         }
         if (!userModel) {
             console.log('no user found');
             flag = true;
         }
         // const lst = userModel.map(user => user._id);
-        console.log('comments notification for this user: '+userModel);
-        res.send({userModel,"error":flag});
+        console.log('comments notification for this user: ' + userModel);
+        res.send({userModel, "error": flag});
 
     });
 
@@ -704,41 +736,43 @@ exports.thisCommentDetails = function (req, res, next) {
 exports.getTheChatRoom = function (req, res, next) {
     var bool = false;
 
-    console.log("from : "+req.params.fromEmail+" to : "+req.params.toEmail );
-    chatRoomTable.findOne( { fromEmail: req.params.fromEmail, toEmail: req.params.toEmail } , function(err, userModel) {
+    console.log("from : " + req.params.fromEmail + " to : " + req.params.toEmail);
+    chatRoomTable.findOne({
+        fromEmail: req.params.fromEmail,
+        toEmail: req.params.toEmail
+    }, function (err, userModel) {
 
 
         if (err) {
             console.log(err);
-            res.status(500).send({"error":"server side error in getting the posts data"});
-        }
-        else if (userModel) {
+            res.status(500).send({"error": "server side error in getting the posts data"});
+        } else if (userModel) {
             bool = true;
             console.log('found chatId in from - to');
 
-            res.status(200).send({ userModel, "response":"from:to" });
+            res.status(200).send({userModel, "response": "from:to"});
 
-        }
-        else if(!userModel)
-        {
+        } else if (!userModel) {
             console.log('not found chatId in from - to');
         }
 
-        if(!bool){
-            chatRoomTable.findOne( { fromEmail: req.params.toEmail, toEmail: req.params.fromEmail } , function(err, userModel) {
+        if (!bool) {
+            chatRoomTable.findOne({
+                fromEmail: req.params.toEmail,
+                toEmail: req.params.fromEmail
+            }, function (err, userModel) {
 
                 if (err) {
                     console.log(err);
-                    res.status(500).send({"error":"server side error in getting the posts data"});
+                    res.status(500).send({"error": "server side error in getting the posts data"});
                 }
                 if (userModel) {
                     console.log('found chatId in to - from');
 
 
-                    res.status(200).send({ userModel, "response":"to:from" });
+                    res.status(200).send({userModel, "response": "to:from"});
 
-                }
-                else if(!userModel){
+                } else if (!userModel) {
                     console.log('not found chatId in to - from');
 
                     var chatRoomObj = new chatRoomTable(
@@ -752,16 +786,14 @@ exports.getTheChatRoom = function (req, res, next) {
                         if (err) {
                             console.log(err);
                             return next(err);
-                        }
-                        else{
-                            console.log("chatGroup : "+userModelCreated);
-                            res.status(200).send({ userModelCreated , "reply":"created the chat"});
+                        } else {
+                            console.log("chatGroup : " + userModelCreated);
+                            res.status(200).send({userModelCreated, "reply": "created the chat"});
                         }
                     });
                 }
 
                 // res.status(200).send({ userModel, "response":"create the chat" });
-
 
 
             });
@@ -772,9 +804,143 @@ exports.getTheChatRoom = function (req, res, next) {
 
 exports.getTheChatRoomFriends = function (req, res, next) {
 
-    friendsTable.findOne( {emailKey: req.params.fromEmail}, function (err, userModel) {
+    friendsTable.findOne({emailKey: req.params.fromEmail}, function (err, userModel) {
         if (err) return next(err);
         res.send(userModel);
     });
+};
 
+
+exports.deleteThisUserFromUserTable = function (req, res, next) {
+
+    userTableModel.findOneAndRemove({email: req.params.friendId}, function (err, userModel) {
+        if (err) {
+            console.log(err);
+            return next(err);
+        }
+
+        res.send({"res":true});
+    });
+};
+
+exports.deleteThisUserFromPrivacyTable = function (req, res, next) {
+
+    accountPrivacyTable.findOneAndRemove({email: req.params.friendId}, function (err, userModel) {
+        if (err) {
+            console.log(err);
+            return next(err);
+        }
+
+        res.send({"res":true});
+    });
+};
+
+
+exports.deleteThisUserFromChatTable = function (req, res, next) {
+
+    chatRoomTable.deleteMany({ fromEmail: req.params.friendId } , function (err, userModel) {
+        if (err) {
+            console.log(err);
+            return next(err);
+        }
+
+        res.send({"res":true});
+
+    });
+};
+
+exports.deleteThisUserFromCommentsTable = function (req, res, next) {
+
+    postsCommentsTable.deleteMany({commentedEmail: req.params.friendId}, function (err, userModel) {
+        if (err) {
+            console.log(err);
+            return next(err);
+        }
+
+        res.send({"res":true});
+    });
+};
+
+
+exports.deleteThisUserFromFriendsTable = function (req, res, next) {
+
+    friendsTable.findOneAndRemove({emailKey: req.params.friendId}, function (err, userModel) { //findOneAndRemove
+        if (err) {
+            console.log(err);
+            return next(err);
+        }
+        if(userModel) {
+            var lstOfFriends = userModel.listEmail;
+            console.log("lstOfFriends : "+lstOfFriends);
+
+            friendsTable.find({ emailKey: lstOfFriends }, ["emailKey", "listEmail"], function (err, userModel1) {
+                console.log("inside length : "+userModel1.length);
+                for(var i = 0; i<userModel1.length; i++) {
+                    console.log("inside lengthhhh : "+userModel1[i]);
+                    friendsTable.findOneAndUpdate( {emailKey: userModel1[i].emailKey}, {$pull: {listEmail: req.params.friendId}} , (err, finalList) => { //findOneAndUpdate
+                        console.log("final list : : : : "+finalList);
+                    } );
+                }
+                res.status(200).send({"res":true});
+            });
+        }
+        else {
+            res.send({"res":true});
+        }
+    });
+};
+
+exports.deleteThisUserFromNotifyCommentsTable = function (req, res, next) {
+
+    notificationCommentsTable.deleteMany({commentedByEmail: req.params.friendId}, function (err, userModel) {
+        if (err) {
+            console.log(err);
+            return next(err);
+        }
+
+
+        notificationCommentsTable.deleteMany({commentedOnEmail: req.params.friendId}, function (err, userModel) {
+            if (err) {
+                console.log(err);
+                return next(err);
+            }
+
+            res.send({"res":true});
+
+        });
+    });
+};
+
+
+exports.deleteThisUserFromNotifyFriendsTable = function (req, res, next) {
+
+    notifiFrndReqTable.deleteMany({emailFrom: req.params.friendId}, function (err, userModel) {
+        if (err) {
+            console.log(err);
+            return next(err);
+        }
+
+        notifiFrndReqTable.deleteMany({emailTo: req.params.friendId}, function (err, userModel) {
+            if (err) {
+                console.log(err);
+                return next(err);
+            }
+
+            res.send({"res":true});
+
+        });
+
+    });
+};
+
+
+exports.deleteThisUserFromPostsTable = function (req, res, next) {
+
+    userPostsTable.deleteMany({email: req.params.friendId}, function (err, userModel) {
+        if (err) {
+            console.log(err);
+            return next(err);
+        }
+        res.send({"res":true});
+    });
 };
