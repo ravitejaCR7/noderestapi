@@ -132,6 +132,8 @@ router.get('/areTheseTwoConnected/:myId/:friendId', userTable_controller.areThes
 
 
 //PostsMadeByUser
+router.post('/emailDuplicationCheck', userTable_controller.emailDuplicationCheck)
+
 router.post('/postedByThisUser',uploadImagesAndVideosToPosts.single('postImageOrVideo') , userTable_controller.user_posting_post);
 
 router.get('/postedByThisUser/:email' , userTable_controller.user_posting_get);
