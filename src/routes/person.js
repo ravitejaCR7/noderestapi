@@ -102,10 +102,14 @@ router.get('/loginCheck/:email/:password', userTable_controller.specific_user_Lo
 //Search for users
 router.get('/searchName/:name', userTable_controller.search_user_details);
 
+
+//search posts using title
+router.get('/searchPostsUsingTitle/:friendId/:textEntered', userTable_controller.search_user_posts_with_this_title);
+
 //queryStrings
 router.get('/find', (req, res) => {
     if(req.query.name)
-    {
+    {loginCheck
         res.status(200).send(`person method -- queryStr ${req.query.name} `);
     }
     else
@@ -208,5 +212,9 @@ router.get('/deleteThisUserFromNotifyCommentsTable/:friendId', userTable_control
 router.get('/deleteThisUserFromNotifyFriendsTable/:friendId', userTable_controller.deleteThisUserFromNotifyFriendsTable);
 
 router.get('/deleteThisUserFromPostsTable/:friendId', userTable_controller.deleteThisUserFromPostsTable);
+
+
+//random generator
+router.get('/generateRandomMails/:myId', userTable_controller.generateRandomMails);
 
 module.exports = router;

@@ -84,7 +84,7 @@ exports.specific_user_Login_check = function(req, res, next) {
     userTableModel.findOne ({ email: req.params.email }, function (err, userModel) {
         var flag = false;
         if (err) console.log (err);
-        if (!userModel && !Bcrypt.compareSync(req.params.password, userModel.password)) {
+        if (!userModel || !Bcrypt.compareSync(req.params.password, userModel.password)) {
             console.log('user not found');
             flag = true;
         }
@@ -104,6 +104,20 @@ exports.search_user_details = function (req, res, next) {
         }
         // const lst = userModel.map(user => user._id);
         console.log('users'+userModel);
+        res.send({userModel,"error":flag});
+    });
+};
+
+exports.search_user_posts_with_this_title = function (req, res, next) {
+    userPostsTable.find({textEntered : new RegExp(req.params.textEntered, 'i'), email: req.params.friendId }, function(err, userModel){
+        var flag = false;
+        if (err) console.log (err);
+        if (!userModel) {
+            console.log('no posts found');
+            flag = true;
+        }
+        // const lst = userModel.map(user => user._id);
+        console.log('posts'+userModel);
         res.send({userModel,"error":flag});
     });
 };
@@ -945,6 +959,7 @@ exports.deleteThisUserFromPostsTable = function (req, res, next) {
         res.send({"res":true});
     });
 };
+
 exports.emailDuplicationCheck = function (req, res, next) {
     console.log(req.body);
     userTableModel.findOne ({ email: req.body.email }, function (err, userModel) {
@@ -961,3 +976,63 @@ exports.emailDuplicationCheck = function (req, res, next) {
 
 };
 
+
+exports.generateRandomMails = function (req, res, next) {
+
+    friendsTable.findOne( { emailKey: req.params.myId }, function (err, friendsModel) {
+        if(err) {
+            console.log(err);
+            res.status(500).send({"res":false});
+        }
+
+
+        var myFriendsList = friendsModel.listEmail;
+        myFriendsList.push(req.params.myId);
+        console.log("lst : "+myFriendsList);
+
+        userTableModel.find( { }, (err, userModel) => {
+            if(err) {
+                console.log(err);
+                res.status(500).send({"res":false});
+            }
+
+            var allUsers = userModel.map( a => a.email );
+            console.log("allUsers : "+allUsers);
+
+            var diffList = arr_diff(myFriendsList, allUsers);
+
+            console.log("diff : "+diffList);
+            var rand = diffList[Math.floor(Math.random() * diffList.length)];
+            console.log("rand : "+rand);
+
+            res.status(200).send({"res":true, "randomId":rand});
+
+        } );
+
+
+    } );
+
+};
+
+function arr_diff (a1, a2) {
+
+    var a = [], diff = [];
+
+    for (var i = 0; i < a1.length; i++) {
+        a[a1[i]] = true;
+    }
+
+    for (var i = 0; i < a2.length; i++) {
+        if (a[a2[i]]) {
+            delete a[a2[i]];
+        } else {
+            a[a2[i]] = true;
+        }
+    }
+
+    for (var k in a) {
+        diff.push(k);
+    }
+
+    return diff;
+}
